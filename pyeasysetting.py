@@ -25,8 +25,12 @@ class PyEasySettingJSON(PyEasySetting):
     def get(self, key, default=None):
         return self._json.get(key, default)
 
-    def set(self, key, value, save=True):
-        self._json[key] = value
+    def set(self, key_or_object, value=None, save=True):
+        if isinstance(key_or_object, str):
+            self._json[key_or_object] = value
+        elif isinstance(key_or_object, dict):
+            self._json.update(key_or_object)
+
         if save:
             self._save()
 
