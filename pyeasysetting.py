@@ -43,20 +43,17 @@ class PyEasySettingJSON(PyEasySetting):
 
 
 class PyEasySettingMongo(PyEasySetting):
-    def __init__(self, host='localhost', port=27017, db='Settings', collection='PyEasySetting'):
-        '''
-            db:database name
-            collection: collection name
-        :param args:
-        :param kwargs:
-        :return:
-        '''
+    def __init__(self, host='localhost', port=27017, db='Settings', collection='PyEasySetting',
+                 user=None, password=None):
         import pymongo
 
         super(PyEasySettingMongo, self).__init__(method=SETTING_METHOD_MONGO)
 
         self.mongoCon = pymongo.MongoClient(host, port)
-        self.collection = self.mongoCon[db][collection]
+        mdb = self.mongoCon[db]
+        if user is not None:
+            mdb.authenticate(user, password)
+        self.collection = mdb[collection]
 
     def get(self, key, default=None):
         v = self.collection.find_one({KEY_NAME: key})

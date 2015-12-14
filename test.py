@@ -1,13 +1,15 @@
 __author__ = 'wing'
 import pyeasysetting as ezs
 import json
+import time
 
+TEST_TIME = str(time.time())
 TEST_KEY_NO = 'not_exist'
 TEST_KEY = 'a'
-TEST_VALUE = 'I am a'
+TEST_VALUE = 'I am a' + TEST_TIME
 
 TEST_OBJ = {
-    'b': 'Hello b',
+    'b': 'Hello b' + TEST_TIME,
     'c': 'I am c'
 }
 
