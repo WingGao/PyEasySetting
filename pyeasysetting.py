@@ -3,6 +3,9 @@ import json
 import os
 
 SETTING_METHOD_JSON = 'json'
+SETTING_METHOD_MONGO = 'mongodb'
+KEY_NAME = 'key'
+VALUE_NAME = 'value'
 
 
 class PyEasySetting(object):
@@ -37,3 +40,41 @@ class PyEasySettingJSON(PyEasySetting):
     def _save(self):
         with open(self.path, 'w') as f:
             json.dump(self._json, f)
+
+
+class PyEasySettingMongo(PyEasySetting):
+    def __init__(self, host='localhost', port=27017, db='Settings', collection='PyEasySetting'):
+        '''
+            db:database name
+            collection: collection name
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        import pymongo
+
+        super(PyEasySettingMongo, self).__init__(method=SETTING_METHOD_MONGO)
+
+        self.mongoCon = pymongo.MongoClient(host, port)
+        self.collection = self.mongoCon[db][collection]
+
+    def get(self, key, default=None):
+        v = self.collection.find_one({KEY_NAME: key})
+        if v is None:
+            return default
+        else:
+            return v['value']
+
+    def set(self, key_or_object, value=None, save=True):
+        if isinstance(key_or_object, str):
+            self.collection.update({KEY_NAME: key_or_object}, {KEY_NAME: key_or_object, VALUE_NAME: value}, upsert=True)
+        elif isinstance(key_or_object, dict):
+            for k, v in key_or_object.items():
+                self.set(k, v, save=save)
+
+    def all(self):
+        v = {}
+        for i in self.collection.find({}):
+            v[i[KEY_NAME]] = i[VALUE_NAME]
+
+        return v
