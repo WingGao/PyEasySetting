@@ -54,6 +54,12 @@ class PyEasySettingMongo(PyEasySetting):
         if user is not None:
             mdb.authenticate(user, password)
         self.collection = mdb[collection]
+        self._prepare()
+
+    def _prepare(self):
+        index_name = 'ezs_key'
+        if index_name not in self.collection.index_information():
+            self.collection.create_index(KEY_NAME, name=index_name, unique=True)
 
     def get(self, key, default=None):
         v = self.collection.find_one({KEY_NAME: key})
